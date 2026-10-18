@@ -23,7 +23,7 @@ Los controles de seguridad se toman del **Anexo A de ISO/IEC 27001:2022**. Se us
 | A.8.9 | Gestión de la configuración | Configuración externa (`appsettings.json` o variable de entorno) con plantilla `.example`. |
 | A.8.12 | Prevención de fuga de datos | Los errores técnicos no se muestran al usuario; solo van a la bitácora. |
 | A.8.13 | Respaldo de la información | Procedimiento de respaldo con `mysqldump` (sección 2.4). |
-| A.8.15 | Registro (logging) | Columnas de auditoría, tabla `MovimientoStock` y bitácora de la aplicación en `/logs`. |
+| A.8.15 | Registro (logging) | Columnas de auditoría, tabla `MovimientoStock`, bitácora de la aplicación en `/logs` y su reporte en PDF (RF-17 y RF-18). |
 | A.8.25 | Ciclo de vida de desarrollo seguro | Requerimientos de seguridad definidos antes de codificar (este documento). |
 | A.8.26 | Requisitos de seguridad de las aplicaciones | Validación de entradas en UI, BLL y BD. |
 | A.8.28 | Codificación segura | Solo SPs con parámetros: nunca se concatena SQL (previene inyección SQL). |
@@ -36,10 +36,12 @@ Los controles de seguridad se toman del **Anexo A de ISO/IEC 27001:2022**. Se us
 
 ### Módulo Productos
 
+> **Organización del menú (versión final):** el menú **Productos** es solo de **consulta** (RF-02). La creación, modificación y desactivación de artículos (RF-01, RF-03, RF-04) se realiza desde **Artículos y categorías → Gestión de artículos**, el mismo apartado que contiene el mantenedor de categorías (RF-05 a RF-08). Así las operaciones que modifican el catálogo quedan concentradas en un único punto.
+
 | ID | Rol / Usuario | Necesidad / Acción | Criterio de aceptación | Criterio de seguridad (ISO 27001) |
 |---|---|---|---|---|
 | **RF-01** | Administrador de inventario | Registrar un producto nuevo con SKU, nombre, descripción, categoría, proveedor, precios, stock mínimo, vencimiento y si requiere receta. | El producto queda guardado con stock 0, estado activo y SKU en mayúsculas. Se rechaza si el SKU ya existe, si falta un campo obligatorio, si el precio de venta es menor que el de compra o si la fecha de vencimiento no es futura. | A.8.26 / A.8.28: validación en UI, BLL y BD (UNIQUE y CHECK) e inserción solo vía `sp_producto_insertar`. A.8.15: guarda `UsuarioCreacion` y `FechaCreacion`. |
-| **RF-02** | Encargado de bodega | Consultar y buscar productos por SKU o nombre, viendo categoría, proveedor, stock y estado. | La grilla muestra los productos activos (o todos si se marca "Mostrar inactivos"), con estado de stock OK, BAJO MÍNIMO o SIN STOCK. | A.8.3: la lectura se hace mediante `sp_producto_listar` sobre la vista; la app no tiene `SELECT` directo sobre las tablas. |
+| **RF-02** | Encargado de bodega | Consultar y buscar productos por SKU o nombre, viendo categoría, proveedor, stock y estado. | La grilla muestra los productos activos (o todos si se marca "Mostrar inactivos"), con estado de stock OK, BAJO MÍNIMO o SIN STOCK. La ventana es de **solo lectura**: no muestra formulario ni botones de edición. | A.8.3: la lectura se hace mediante `sp_producto_listar` sobre la vista; la app no tiene `SELECT` directo sobre las tablas. |
 | **RF-03** | Administrador de inventario | Modificar los datos de un producto existente. | Se guardan los cambios y aumenta `Version`. Si otro usuario modificó el producto antes, se muestra "fue modificado por otro usuario" y no se sobrescribe. El stock **no** se edita desde este formulario. | A.8.15: guarda `UsuarioModificacion` y `FechaModificacion`. Integridad: concurrencia optimista (`Version`). |
 | **RF-04** | Administrador de inventario | Desactivar (dar de baja) un producto. | Pide confirmación y el producto queda con `Activo = 0`. No se permite si el producto tiene stock mayor que 0. | A.5.33: baja lógica, sin borrado físico, que conserva el kardex. |
 
@@ -74,6 +76,13 @@ Los controles de seguridad se toman del **Anexo A de ISO/IEC 27001:2022**. Se us
 |---|---|---|---|---|
 | **RF-15** | Encargado / Administrador | Ver en una sola consulta todos los datos de un producto (categoría, proveedor, margen, estado y valor del inventario). | La vista `vw_productodetalle` entrega los datos consolidados y calculados sin duplicarlos en tablas. | Integridad: los datos calculados no se almacenan, por lo que no pueden quedar desactualizados. |
 | **RF-16** | Encargado / Administrador | Saber al iniciar si la aplicación está conectada a la base de datos. | La ventana principal muestra "Conectado". Si no hay conexión, deshabilita el menú y muestra un mensaje claro. | A.8.12: el mensaje no expone el servidor, el usuario ni la contraseña. A.8.15: el intento queda en la bitácora. |
+
+### Módulo Bitácora y reportes
+
+| ID | Rol / Usuario | Necesidad / Acción | Criterio de aceptación | Criterio de seguridad (ISO 27001) |
+|---|---|---|---|---|
+| **RF-17** | Administrador / Auditor | Consultar en pantalla la bitácora: inicios de sesión, creaciones, modificaciones, desactivaciones y movimientos de stock, con fecha, usuario, operación y detalle. | La ventana **Bitácora y reporte PDF** lista todos los eventos registrados, del más reciente al más antiguo, con el total de eventos. | A.8.15 / A.8.16: revisión y monitoreo de la actividad. A.8.12: la bitácora nunca contiene contraseñas ni la cadena de conexión. |
+| **RF-18** | Administrador / Auditor | Descargar la bitácora completa en un archivo PDF. | El botón **Descargar PDF** pide dónde guardar el archivo y genera un PDF con encabezado (quién lo generó, cuándo y el período cubierto), resumen por usuario y por operación, y el detalle cronológico de todos los eventos. El PDF se abre automáticamente. | A.8.15: cada exportación queda registrada en la bitácora (`Exportar bitácora PDF`, con el nombre del archivo y la cantidad de eventos), de modo que también es trazable quién extrajo la información. |
 
 ---
 
