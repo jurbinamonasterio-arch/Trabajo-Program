@@ -1,0 +1,25 @@
+# --- .NET ---
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# --- Seguridad (ISO 27001 A.5.17): credenciales reales NUNCA al repositorio ---
+appsettings.json
+!appsettings.example.json
+*.env
+
+# --- Bitácora local de la aplicación ---
+logs/
+*.log
+
+# --- Respaldos de base de datos ---
+respaldo_*.sql
+
+# --- macOS ---
+.DS_Store
+
+# --- VS Code ---
+.vscode/*
+!.vscode/extensions.json
