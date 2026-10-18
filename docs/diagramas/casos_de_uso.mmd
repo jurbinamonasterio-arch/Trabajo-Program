@@ -1,0 +1,53 @@
+flowchart LR
+  ENC["«actor»<br/><b>Encargado de bodega</b>"]
+  ADM["«actor»<br/><b>Administrador de inventario</b>"]
+  BD[("«sistema»<br/>Base de datos MySQL")]
+  ADM -- "generalización" --> ENC
+
+  subgraph SIGBIM["SIGBIM — Sistema de Gestión de Bodega de Insumos Médicos"]
+    direction LR
+    subgraph P["Productos (consulta)"]
+      CU02(["CU-02 Consultar / buscar productos"])
+    end
+    subgraph AC["Artículos y categorías"]
+      CU01(["CU-01 Registrar artículo"])
+      CU03(["CU-03 Modificar artículo"])
+      CU04(["CU-04 Desactivar artículo"])
+      CU05(["CU-05 Registrar categoría"])
+      CU06(["CU-06 Listar categorías"])
+      CU07(["CU-07 Modificar categoría"])
+      CU08(["CU-08 Desactivar categoría"])
+    end
+    subgraph PR["Proveedores"]
+      CU09(["CU-09 Registrar proveedor"])
+      CU10(["CU-10 Listar proveedores"])
+      CU11(["CU-11 Modificar proveedor"])
+      CU12(["CU-12 Desactivar proveedor"])
+    end
+    subgraph MS["Movimientos de stock"]
+      CU13(["CU-13 Registrar movimiento<br/>(entrada / salida / ajuste)"])
+      CU14(["CU-14 Consultar kardex"])
+    end
+    subgraph BI["Bitácora y reportes"]
+      CU15(["CU-15 Consultar bitácora"])
+      CU16(["CU-16 Descargar bitácora en PDF"])
+    end
+    VAL(["Validar datos"])
+    AUD(["Registrar auditoría"])
+    VST(["Validar stock suficiente"])
+    CON(["Confirmar desactivación"])
+    ALE(["Alertar stock bajo mínimo"])
+  end
+
+  ENC --> CU02 & CU13 & CU14
+  ADM --> CU01 & CU03 & CU04 & CU05 & CU06 & CU07 & CU08
+  ADM --> CU09 & CU10 & CU11 & CU12
+  ADM --> CU15 & CU16
+
+  CU01 & CU03 & CU05 & CU07 & CU09 & CU11 & CU13 -. "«include»" .-> VAL
+  CU01 & CU03 & CU13 & CU16 -. "«include»" .-> AUD
+  CU13 -. "«include»" .-> VST
+  CU04 & CU08 & CU12 -. "«include»" .-> CON
+  ALE -. "«extend»" .-> CU02
+  AUD --> BD
+  VST --> BD
