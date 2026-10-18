@@ -1,0 +1,150 @@
+@startuml clases_capas
+' Diagrama de Clases UML - Capas BLL, DAL y UI (métodos principales)
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F5F9FF
+  BorderColor #2F6DB5
+}
+hide empty members
+left to right direction
+
+package "Sigbim.UI (Presentación - Avalonia)" {
+  class VentanaPrincipal
+  abstract class "VentanaMantenedor<T>" as VM {
+    # Grilla : DataGrid
+    # Actual : T?
+    # {abstract} Cargar(buscar, incluirInactivos) : IEnumerable<T>
+    # {abstract} Guardar() : int
+    # {abstract} Eliminar(registro : T) : void
+    # RecargarAsync(seleccionarId : int?) : Task
+  }
+  class VentanaProductos
+  class VentanaCategorias
+  class VentanaProveedores
+  class VentanaMovimientos {
+    - RegistrarAsync() : Task
+    - CargarHistorialAsync() : Task
+  }
+  class Ui <<static>> {
+    + LeerDecimal(caja, campo, errores) : decimal
+    + LeerEntero(caja, campo, errores) : int
+    + EjecutarAsync(ventana, accion) : Task<bool>
+  }
+}
+
+package "Sigbim.BLL (Lógica de negocio)" {
+  abstract class ServicioBase {
+    # {static} Ejecutar<T>(operacion, accion, detalleExito) : T
+  }
+  class ProductoBLL {
+    - _dal : ProductoDAL
+    + Listar(buscar : string?, soloActivos : bool) : List<ProductoDetalle>
+    + Obtener(idProducto : int) : ProductoDetalle?
+    + Guardar(p : Producto) : int
+    + Eliminar(idProducto : int) : void
+    - Validar(p : Producto) : void
+  }
+  class CategoriaBLL {
+    - _dal : CategoriaDAL
+    + Listar(soloActivos : bool) : List<Categoria>
+    + Guardar(c : Categoria) : int
+    + Eliminar(idCategoria : int) : void
+  }
+  class ProveedorBLL {
+    - _dal : ProveedorDAL
+    + Listar(soloActivos : bool) : List<Proveedor>
+    + Guardar(p : Proveedor) : int
+    + Eliminar(idProveedor : int) : void
+  }
+  class MovimientoStockBLL {
+    - _dal : MovimientoStockDAL
+    + Registrar(m : MovimientoStock) : int
+    + Listar(idProducto : int?) : List<MovimientoStock>
+  }
+  class Validador {
+    + Requerido(valor, campo) : Validador
+    + LargoMaximo(valor, max, campo) : Validador
+    + Rut(valor) : Validador
+    + Email(valor, campo) : Validador
+    + LanzarSiHayErrores() : void
+    + {static} RutValido(rut : string) : bool
+  }
+  class Sesion <<static>> {
+    + {static} UsuarioActual : string
+  }
+  class RegistroEventos <<static>> {
+    + {static} Info(operacion, detalle) : void
+    + {static} Error(operacion, ex) : void
+  }
+  class SistemaBLL <<static>> {
+    + {static} ProbarConexion() : void
+  }
+}
+
+package "Sigbim.DAL (Acceso a datos)" {
+  class Conexion <<static>> {
+    - {static} _cadena : string?
+    ~ {static} Crear() : DbConnection
+    + {static} Probar() : void
+  }
+  class Db <<static>> {
+    ~ {static} Lista<T>(sp, mapear, parametros) : List<T>
+    ~ {static} EscalarEntero(sp, parametros) : int
+  }
+  class TraductorErrores <<static>> {
+    ~ {static} Traducir(ex : DbException) : DatosException
+  }
+  class ProductoDAL {
+    + Insertar(p, usuario) : int
+    + Actualizar(p, usuario) : int
+    + Eliminar(id, usuario) : int
+    + Obtener(id) : ProductoDetalle?
+    + Listar(buscar, soloActivos) : List<ProductoDetalle>
+  }
+  class CategoriaDAL {
+    + Insertar(c, usuario) : int
+    + Actualizar(c, usuario) : int
+    + Eliminar(id, usuario) : int
+    + Listar(soloActivos) : List<Categoria>
+  }
+  class ProveedorDAL {
+    + Insertar(p, usuario) : int
+    + Actualizar(p, usuario) : int
+    + Eliminar(id, usuario) : int
+    + Listar(soloActivos) : List<Proveedor>
+  }
+  class MovimientoStockDAL {
+    + Registrar(m, usuario) : (int, int)
+    + Listar(idProducto) : List<MovimientoStock>
+  }
+}
+
+VM <|-- VentanaProductos
+VM <|-- VentanaCategorias
+VM <|-- VentanaProveedores
+VentanaPrincipal ..> VentanaProductos
+VentanaPrincipal ..> VentanaMovimientos
+VentanaProductos ..> ProductoBLL
+VentanaCategorias ..> CategoriaBLL
+VentanaProveedores ..> ProveedorBLL
+VentanaMovimientos ..> MovimientoStockBLL
+
+ServicioBase <|-- ProductoBLL
+ServicioBase <|-- CategoriaBLL
+ServicioBase <|-- ProveedorBLL
+ServicioBase <|-- MovimientoStockBLL
+ProductoBLL ..> Validador
+ServicioBase ..> RegistroEventos
+
+ProductoBLL *-- ProductoDAL
+CategoriaBLL *-- CategoriaDAL
+ProveedorBLL *-- ProveedorDAL
+MovimientoStockBLL *-- MovimientoStockDAL
+
+ProductoDAL ..> Db
+CategoriaDAL ..> Db
+ProveedorDAL ..> Db
+MovimientoStockDAL ..> Db
+Db ..> Conexion
+Db ..> TraductorErrores
+@enduml

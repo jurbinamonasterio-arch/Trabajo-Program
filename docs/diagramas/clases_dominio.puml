@@ -1,0 +1,110 @@
+@startuml clases_dominio
+' Diagrama de Clases UML - Capa de Entidades (modelo de dominio)
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F5F9FF
+  BorderColor #2F6DB5
+}
+hide empty members
+
+package "Sigbim.Entidades" {
+
+  abstract class EntidadAuditable {
+    + Activo : bool
+    + Version : int
+    + FechaCreacion : DateTime
+    + UsuarioCreacion : string
+    + FechaModificacion : DateTime?
+    + UsuarioModificacion : string?
+    + EstadoTexto : string {readOnly}
+  }
+
+  class Categoria {
+    + IdCategoria : int
+    + Nombre : string
+    + Descripcion : string?
+    + ToString() : string
+  }
+
+  class Proveedor {
+    + IdProveedor : int
+    + Rut : string
+    + RazonSocial : string
+    + NombreContacto : string?
+    + Email : string?
+    + Telefono : string?
+    + Direccion : string?
+    + Ciudad : string?
+    + ToString() : string
+  }
+
+  class Producto {
+    + IdProducto : int
+    + Sku : string
+    + Nombre : string
+    + Descripcion : string?
+    + IdCategoria : int
+    + IdProveedor : int
+    + PrecioCompra : decimal
+    + PrecioVenta : decimal
+    + Stock : int
+    + StockMinimo : int
+    + FechaVencimiento : DateTime?
+    + RequiereReceta : bool
+    + ToString() : string
+  }
+
+  class ProductoDetalle {
+    + Categoria : string
+    + RutProveedor : string
+    + Proveedor : string
+    + ContactoProveedor : string?
+    + TelefonoProveedor : string?
+    + Margen : decimal
+    + EstadoStock : string
+    + ValorInventario : decimal
+    + TotalMovimientos : int
+    + UltimoMovimiento : DateTime?
+  }
+
+  class MovimientoStock {
+    + IdMovimiento : int
+    + IdProducto : int
+    + Tipo : TipoMovimiento
+    + Cantidad : int
+    + StockAnterior : int
+    + StockNuevo : int
+    + Motivo : string?
+    + DocumentoReferencia : string?
+    + Fecha : DateTime
+    + UsuarioResponsable : string
+  }
+
+  enum TipoMovimiento {
+    ENTRADA
+    SALIDA
+    AJUSTE
+  }
+
+  abstract class SigbimException
+  class ValidacionException {
+    + Errores : IReadOnlyList<string>
+  }
+  class DatosException {
+    + CodigoError : int
+  }
+}
+
+EntidadAuditable <|-- Categoria
+EntidadAuditable <|-- Proveedor
+EntidadAuditable <|-- Producto
+Producto <|-- ProductoDetalle
+
+Producto "0..*" --> "1" Categoria : pertenece a >
+Producto "0..*" --> "1" Proveedor : es abastecido por >
+MovimientoStock "0..*" --> "1" Producto : modifica stock de >
+MovimientoStock --> TipoMovimiento
+
+SigbimException <|-- ValidacionException
+SigbimException <|-- DatosException
+@enduml
