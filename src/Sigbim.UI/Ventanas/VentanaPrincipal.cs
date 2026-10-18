@@ -20,9 +20,9 @@ public class VentanaPrincipal : Window
         CanResize = false;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
-        _menu.Children.Add(Opcion("Productos", () => new VentanaProductos()));
+        _menu.Children.Add(Opcion("Productos", () => new VentanaProductos(soloLectura: true)));
         _menu.Children.Add(Opcion("Movimientos de stock", () => new VentanaMovimientos()));
-        _menu.Children.Add(Opcion("Categorías", () => new VentanaCategorias()));
+        _menu.Children.Add(Opcion("Artículos y categorías", () => new VentanaArticulosCategorias()));
         _menu.Children.Add(Opcion("Proveedores", () => new VentanaProveedores()));
 
         Content = new StackPanel

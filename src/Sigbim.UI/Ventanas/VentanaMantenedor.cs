@@ -31,11 +31,13 @@ public abstract class VentanaMantenedor<T> : Window where T : class
     private readonly Button _btnGuardar = new() { Content = "Guardar" };
     private readonly Button _btnEliminar = new() { Content = "Desactivar" };
     private readonly bool _conBuscador;
+    private readonly bool _soloLectura;
 
     /// <summary>Registro que se está editando; null significa "nuevo registro".</summary>
     protected T? Actual { get; private set; }
 
-    protected VentanaMantenedor(string titulo, bool conBuscador = false)
+    /// <param name="soloLectura">true muestra solo la grilla (consulta), sin formulario ni botones de edición.</param>
+    protected VentanaMantenedor(string titulo, bool conBuscador = false, bool soloLectura = false)
     {
         Title = $"SIGBIM - {titulo}";
         Width = 1180;
@@ -44,6 +46,7 @@ public abstract class VentanaMantenedor<T> : Window where T : class
         MinHeight = 520;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         _conBuscador = conBuscador;
+        _soloLectura = soloLectura;
     }
 
     // ---------- Lo que cada mantenedor debe implementar ----------
@@ -114,13 +117,14 @@ public abstract class VentanaMantenedor<T> : Window where T : class
         DockPanel.SetDock(panelFormulario, Dock.Right);
         dock.Children.Add(barra);
         dock.Children.Add(_lblEstado);
-        dock.Children.Add(panelFormulario);
+        if (!_soloLectura)
+            dock.Children.Add(panelFormulario);
         dock.Children.Add(Grilla);
         Content = dock;
 
         Grilla.SelectionChanged += (_, _) =>
         {
-            if (Grilla.SelectedItem is T registro)
+            if (!_soloLectura && Grilla.SelectedItem is T registro)
                 Editar(registro);
         };
         _btnNuevo.Click += (_, _) =>

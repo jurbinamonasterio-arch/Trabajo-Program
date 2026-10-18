@@ -5,7 +5,10 @@ using Sigbim.Entidades;
 
 namespace Sigbim.UI.Ventanas;
 
-/// <summary>Mantenedor CRUD de productos (lectura desde la vista vw_productodetalle).</summary>
+/// <summary>
+/// Productos (lectura desde la vista vw_productodetalle). Se usa en dos modos:
+/// consulta (solo lectura, menú "Productos") y gestión CRUD (desde "Artículos y categorías").
+/// </summary>
 public class VentanaProductos : VentanaMantenedor<ProductoDetalle>
 {
     private readonly ProductoBLL _bll = new();
@@ -27,7 +30,8 @@ public class VentanaProductos : VentanaMantenedor<ProductoDetalle>
     private readonly CheckBox _chkReceta = new() { Content = "Requiere receta" };
     private readonly CheckBox _chkActivo = new() { Content = "Activo" };
 
-    public VentanaProductos() : base("Productos", conBuscador: true)
+    public VentanaProductos(bool soloLectura = false)
+        : base(soloLectura ? "Productos (consulta)" : "Gestión de artículos", conBuscador: true, soloLectura)
     {
         Inicializar();
     }
