@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <!-- Permite ejecutar también con .NET 9 o 10 si no tienes instalado el 8 -->
+    <RollForward>Major</RollForward>
+    <AssemblyName>Sigbim</AssemblyName>
+    <RootNamespace>Sigbim.UI</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Avalonia UI: interfaz de escritorio multiplataforma (macOS / Windows / Linux) -->
+    <PackageReference Include="Avalonia" Version="11.*" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.*" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.*" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sigbim.Entidades\Sigbim.Entidades.csproj" />
+    <ProjectReference Include="..\Sigbim.BLL\Sigbim.BLL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- La configuración real (con contraseña) no se versiona: ver .gitignore -->
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
