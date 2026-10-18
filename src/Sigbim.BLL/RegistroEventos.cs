@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text.RegularExpressions;
 using Sigbim.Entidades;
 
 namespace Sigbim.BLL;
@@ -13,6 +15,10 @@ public static class RegistroEventos
     private static readonly object Bloqueo = new();
     private static readonly string Carpeta = Path.Combine(AppContext.BaseDirectory, "logs");
 
+    // Formato de cada línea: "2026-10-18 19:07:24 [INFO] [usuario] Operación - Detalle"
+    private static readonly Regex FormatoLinea =
+        new(@"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(\w+)\] \[(.*?)\] (.*?) - (.*)$");
+
     public static void Info(string operacion, string detalle) => Escribir("INFO", operacion, detalle);
 
     public static void Error(string operacion, Exception ex)
@@ -24,6 +30,38 @@ public static class RegistroEventos
             _ => $"{ex.GetType().Name}: {ex.Message}"
         };
         Escribir(ex is ValidacionException ? "WARN" : "ERROR", operacion, detalle);
+    }
+
+    /// <summary>Lee todos los archivos de la bitácora y devuelve los eventos en orden cronológico.</summary>
+    public static List<EventoBitacora> Leer()
+    {
+        var eventos = new List<EventoBitacora>();
+        lock (Bloqueo)
+        {
+            if (!Directory.Exists(Carpeta))
+                return eventos;
+
+            foreach (var archivo in Directory.GetFiles(Carpeta, "sigbim-*.log").Order())
+            {
+                foreach (var linea in File.ReadLines(archivo))
+                {
+                    var m = FormatoLinea.Match(linea);
+                    if (!m.Success)
+                        continue;   // líneas con otro formato se ignoran
+
+                    eventos.Add(new EventoBitacora
+                    {
+                        Fecha = DateTime.ParseExact(m.Groups[1].Value, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                        Nivel = m.Groups[2].Value,
+                        Usuario = m.Groups[3].Value,
+                        Operacion = m.Groups[4].Value,
+                        Detalle = m.Groups[5].Value
+                    });
+                }
+            }
+        }
+
+        return eventos.OrderBy(e => e.Fecha).ToList();
     }
 
     private static void Escribir(string nivel, string operacion, string detalle)

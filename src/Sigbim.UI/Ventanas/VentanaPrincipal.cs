@@ -16,7 +16,7 @@ public class VentanaPrincipal : Window
     {
         Title = "SIGBIM - Inventario de insumos médicos";
         Width = 560;
-        Height = 520;
+        Height = 580;
         CanResize = false;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
@@ -24,6 +24,7 @@ public class VentanaPrincipal : Window
         _menu.Children.Add(Opcion("Movimientos de stock", () => new VentanaMovimientos()));
         _menu.Children.Add(Opcion("Artículos y categorías", () => new VentanaArticulosCategorias()));
         _menu.Children.Add(Opcion("Proveedores", () => new VentanaProveedores()));
+        _menu.Children.Add(Opcion("Bitácora y reporte PDF", () => new VentanaBitacora()));
 
         Content = new StackPanel
         {

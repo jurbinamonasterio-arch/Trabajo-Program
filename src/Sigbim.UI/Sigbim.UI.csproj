@@ -18,6 +18,8 @@
     <PackageReference Include="Avalonia.Desktop" Version="11.*" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.*" />
     <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.*" />
+    <!-- QuestPDF: generación del reporte PDF de la bitácora (licencia Community, uso académico) -->
+    <PackageReference Include="QuestPDF" Version="2026.9.0" />
   </ItemGroup>
 
   <ItemGroup>
