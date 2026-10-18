@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sigbim.Entidades", "Sigbim.Entidades\Sigbim.Entidades.csproj", "{C543DCBD-7914-42F4-ADF0-B1744840E5B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sigbim.DAL", "Sigbim.DAL\Sigbim.DAL.csproj", "{1759CA24-062D-4590-974C-3A0748BD1CD5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sigbim.BLL", "Sigbim.BLL\Sigbim.BLL.csproj", "{6E068017-7754-46A1-B837-66EACBD09E21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sigbim.UI", "Sigbim.UI\Sigbim.UI.csproj", "{08FB97F7-0856-4657-8C07-60BAAA040DCD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C543DCBD-7914-42F4-ADF0-B1744840E5B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C543DCBD-7914-42F4-ADF0-B1744840E5B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C543DCBD-7914-42F4-ADF0-B1744840E5B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C543DCBD-7914-42F4-ADF0-B1744840E5B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1759CA24-062D-4590-974C-3A0748BD1CD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1759CA24-062D-4590-974C-3A0748BD1CD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1759CA24-062D-4590-974C-3A0748BD1CD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1759CA24-062D-4590-974C-3A0748BD1CD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E068017-7754-46A1-B837-66EACBD09E21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E068017-7754-46A1-B837-66EACBD09E21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E068017-7754-46A1-B837-66EACBD09E21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E068017-7754-46A1-B837-66EACBD09E21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08FB97F7-0856-4657-8C07-60BAAA040DCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08FB97F7-0856-4657-8C07-60BAAA040DCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08FB97F7-0856-4657-8C07-60BAAA040DCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08FB97F7-0856-4657-8C07-60BAAA040DCD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
