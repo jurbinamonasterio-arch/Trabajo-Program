@@ -1,0 +1,87 @@
+@startuml modelo_relacional
+' Modelo Relacional normalizado (3FN) - sigbim_mac
+hide circle
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #F5F9FF
+  BorderColor #2F6DB5
+}
+
+entity "Categoria" as CAT {
+  * **IdCategoria** : INT <<PK, AI>>
+  --
+  * Nombre : VARCHAR(60) <<UQ>>
+  Descripcion : VARCHAR(200)
+  * Activo : TINYINT(1)
+  * Version : INT
+  * FechaCreacion : DATETIME
+  * UsuarioCreacion : VARCHAR(50)
+  FechaModificacion : DATETIME
+  UsuarioModificacion : VARCHAR(50)
+}
+
+entity "Proveedor" as PRV {
+  * **IdProveedor** : INT <<PK, AI>>
+  --
+  * Rut : VARCHAR(12) <<UQ>>
+  * RazonSocial : VARCHAR(120)
+  NombreContacto : VARCHAR(120)
+  Email : VARCHAR(120)
+  Telefono : VARCHAR(20)
+  Direccion : VARCHAR(150)
+  Ciudad : VARCHAR(60)
+  * Activo : TINYINT(1)
+  * Version : INT
+  * FechaCreacion : DATETIME
+  * UsuarioCreacion : VARCHAR(50)
+  FechaModificacion : DATETIME
+  UsuarioModificacion : VARCHAR(50)
+}
+
+entity "Producto" as PRO {
+  * **IdProducto** : INT <<PK, AI>>
+  --
+  * Sku : VARCHAR(20) <<UQ>>
+  * Nombre : VARCHAR(120)
+  Descripcion : VARCHAR(250)
+  * IdCategoria : INT <<FK>>
+  * IdProveedor : INT <<FK>>
+  * PrecioCompra : DECIMAL(12,2) <<CHECK >= 0>>
+  * PrecioVenta : DECIMAL(12,2) <<CHECK >= 0>>
+  * Stock : INT <<CHECK >= 0>>
+  * StockMinimo : INT <<CHECK >= 0>>
+  FechaVencimiento : DATE
+  * RequiereReceta : TINYINT(1)
+  * Activo : TINYINT(1)
+  * Version : INT
+  * FechaCreacion : DATETIME
+  * UsuarioCreacion : VARCHAR(50)
+  FechaModificacion : DATETIME
+  UsuarioModificacion : VARCHAR(50)
+}
+
+entity "MovimientoStock" as MOV {
+  * **IdMovimiento** : INT <<PK, AI>>
+  --
+  * IdProducto : INT <<FK>>
+  * Tipo : VARCHAR(10) <<CHECK ENTRADA|SALIDA|AJUSTE>>
+  * Cantidad : INT <<CHECK > 0>>
+  * StockAnterior : INT
+  * StockNuevo : INT
+  Motivo : VARCHAR(200)
+  DocumentoReferencia : VARCHAR(40)
+  * Fecha : DATETIME
+  * UsuarioResponsable : VARCHAR(50)
+}
+
+CAT ||--o{ PRO : "clasifica\n(ON DELETE RESTRICT)"
+PRV ||--o{ PRO : "abastece\n(ON DELETE RESTRICT)"
+PRO ||--o{ MOV : "registra\n(ON DELETE RESTRICT)"
+
+note bottom of MOV
+  Vista vw_productodetalle =
+  Producto ⋈ Categoria ⋈ Proveedor
+  + Margen, EstadoStock, ValorInventario,
+  TotalMovimientos, UltimoMovimiento (calculados)
+end note
+@enduml
