@@ -1,0 +1,21 @@
+@startuml arquitectura
+' Arquitectura en 4 capas - SIGBIM
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor #F5F9FF
+  BorderColor #2F6DB5
+}
+
+rectangle "Capa de Presentación (UI)\nSigbim.UI - Avalonia UI\nVentanas, formularios, validación de formato" as UI
+rectangle "Capa de Lógica de Negocio (BLL)\nSigbim.BLL\nReglas de negocio, validaciones, bitácora" as BLL
+rectangle "Capa de Entidades (DTO / Models)\nSigbim.Entidades\nProducto, Categoria, Proveedor,\nMovimientoStock, excepciones" as ENT
+rectangle "Capa de Acceso a Datos (DAL)\nSigbim.DAL - MySqlConnector\nInvoca SPs con parámetros, traduce errores" as DAL
+database "MySQL 8 (sigbim_mac)\nTablas + vista + procedimientos almacenados\nPK, FK, UNIQUE, CHECK, transacciones" as BD
+
+UI -down-> BLL : llama servicios
+BLL -down-> DAL : solicita datos
+DAL -down-> BD : CALL sp_* (usuario sigbim_app, solo EXECUTE)
+BLL <-right-> ENT
+UI .right.> ENT : usa
+DAL .right.> ENT : mapea
+@enduml
