@@ -1,0 +1,92 @@
+@startuml casos_de_uso
+' Diagrama de Casos de Uso - SIGBIM (mantenedores CRUD)
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor #F5F9FF
+  BorderColor #2F6DB5
+}
+
+actor "Encargado\nde bodega" as ENC
+actor "Administrador\nde inventario" as ADM
+actor "Base de datos\nMySQL" as BD <<sistema>>
+
+ADM -up-|> ENC
+
+rectangle "SIGBIM - Sistema de Gestión de Bodega de Insumos Médicos" {
+
+  package "Productos" {
+    usecase "CU-01 Registrar producto" as CU01
+    usecase "CU-02 Consultar / buscar productos" as CU02
+    usecase "CU-03 Modificar producto" as CU03
+    usecase "CU-04 Desactivar producto" as CU04
+  }
+
+  package "Categorías" {
+    usecase "CU-05 Registrar categoría" as CU05
+    usecase "CU-06 Listar categorías" as CU06
+    usecase "CU-07 Modificar categoría" as CU07
+    usecase "CU-08 Desactivar categoría" as CU08
+  }
+
+  package "Proveedores" {
+    usecase "CU-09 Registrar proveedor" as CU09
+    usecase "CU-10 Listar proveedores" as CU10
+    usecase "CU-11 Modificar proveedor" as CU11
+    usecase "CU-12 Desactivar proveedor" as CU12
+  }
+
+  package "Movimientos de stock" {
+    usecase "CU-13 Registrar movimiento\n(entrada / salida / ajuste)" as CU13
+    usecase "CU-14 Consultar kardex" as CU14
+  }
+
+  usecase "Validar datos" as VAL
+  usecase "Registrar auditoría" as AUD
+  usecase "Validar stock suficiente" as VST
+  usecase "Alertar stock bajo mínimo" as ALE
+  usecase "Confirmar desactivación" as CON
+}
+
+' Encargado de bodega
+ENC --> CU02
+ENC --> CU13
+ENC --> CU14
+
+' Administrador de inventario (además hereda lo del encargado)
+ADM --> CU01
+ADM --> CU03
+ADM --> CU04
+ADM --> CU05
+ADM --> CU06
+ADM --> CU07
+ADM --> CU08
+ADM --> CU09
+ADM --> CU10
+ADM --> CU11
+ADM --> CU12
+
+' Relaciones include
+CU01 ..> VAL : <<include>>
+CU03 ..> VAL : <<include>>
+CU05 ..> VAL : <<include>>
+CU07 ..> VAL : <<include>>
+CU09 ..> VAL : <<include>>
+CU11 ..> VAL : <<include>>
+CU13 ..> VAL : <<include>>
+CU13 ..> VST : <<include>>
+CU01 ..> AUD : <<include>>
+CU03 ..> AUD : <<include>>
+CU13 ..> AUD : <<include>>
+CU04 ..> CON : <<include>>
+CU08 ..> CON : <<include>>
+CU12 ..> CON : <<include>>
+
+' Relación extend
+ALE .> CU02 : <<extend>>
+
+' Actor secundario
+AUD --> BD
+VST --> BD
+@enduml
