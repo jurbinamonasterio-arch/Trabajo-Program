@@ -1,0 +1,132 @@
+classDiagram
+  direction TB
+  namespace UI_Presentacion_Avalonia {
+    class VentanaPrincipal
+    class VentanaMantenedor~T~ {
+      <<abstract>>
+      #DataGrid Grilla
+      #T? Actual
+      -bool _soloLectura
+      #Cargar(buscar, incluirInactivos)* IEnumerable~T~
+      #Guardar()* int
+      #Eliminar(registro T)* void
+      #RecargarAsync(seleccionarId) Task
+    }
+    class VentanaProductos {
+      +VentanaProductos(soloLectura bool)
+    }
+    class VentanaCategorias
+    class VentanaProveedores
+    class VentanaArticulosCategorias
+    class VentanaMovimientos {
+      -RegistrarAsync() Task
+      -CargarHistorialAsync() Task
+    }
+    class VentanaBitacora {
+      -RecargarAsync() Task
+      -DescargarPdfAsync() Task
+    }
+    class ReporteBitacoraPdf {
+      <<static>>
+      +Generar(ruta, eventos)$ void
+    }
+    class Ui {
+      <<static>>
+      +LeerDecimal(caja, campo, errores)$ decimal
+      +LeerEntero(caja, campo, errores)$ int
+      +EjecutarAsync(ventana, accion)$ Task~bool~
+    }
+  }
+  namespace BLL_Logica_de_negocio {
+    class ServicioBase {
+      <<abstract>>
+      #Ejecutar~T~(operacion, accion, detalleExito)$ T
+    }
+    class ProductoBLL {
+      +Listar(buscar, soloActivos) List~ProductoDetalle~
+      +Guardar(p Producto) int
+      +Eliminar(idProducto int) void
+      -Validar(p Producto) void
+    }
+    class CategoriaBLL {
+      +Listar(soloActivos) List~Categoria~
+      +Guardar(c Categoria) int
+      +Eliminar(idCategoria int) void
+    }
+    class ProveedorBLL {
+      +Listar(soloActivos) List~Proveedor~
+      +Guardar(p Proveedor) int
+      +Eliminar(idProveedor int) void
+    }
+    class MovimientoStockBLL {
+      +Registrar(m MovimientoStock) int
+      +Listar(idProducto) List~MovimientoStock~
+    }
+    class BitacoraBLL {
+      +Listar() List~EventoBitacora~
+      +RegistrarExportacion(archivo, cantidadEventos) void
+    }
+    class RegistroEventos {
+      <<static>>
+      +Info(operacion, detalle)$ void
+      +Error(operacion, ex)$ void
+      +Leer()$ List~EventoBitacora~
+    }
+    class Validador
+  }
+  namespace DAL_Acceso_a_datos {
+    class Db {
+      <<static>>
+      ~Lista~T~(sp, mapear, parametros)$ List~T~
+      ~EscalarEntero(sp, parametros)$ int
+    }
+    class Conexion {
+      <<static>>
+      ~Crear()$ DbConnection
+      +Probar()$ void
+    }
+    class TraductorErrores {
+      <<static>>
+      ~Traducir(ex DbException)$ DatosException
+    }
+    class ProductoDAL
+    class CategoriaDAL
+    class ProveedorDAL
+    class MovimientoStockDAL
+  }
+
+  VentanaMantenedor <|-- VentanaProductos
+  VentanaMantenedor <|-- VentanaCategorias
+  VentanaMantenedor <|-- VentanaProveedores
+  VentanaPrincipal ..> VentanaProductos : consulta
+  VentanaPrincipal ..> VentanaMovimientos
+  VentanaPrincipal ..> VentanaArticulosCategorias
+  VentanaPrincipal ..> VentanaBitacora
+  VentanaArticulosCategorias ..> VentanaProductos : gestión
+  VentanaArticulosCategorias ..> VentanaCategorias
+  VentanaProductos ..> ProductoBLL
+  VentanaCategorias ..> CategoriaBLL
+  VentanaProveedores ..> ProveedorBLL
+  VentanaMovimientos ..> MovimientoStockBLL
+  VentanaBitacora ..> BitacoraBLL
+  VentanaBitacora ..> ReporteBitacoraPdf
+
+  ServicioBase <|-- ProductoBLL
+  ServicioBase <|-- CategoriaBLL
+  ServicioBase <|-- ProveedorBLL
+  ServicioBase <|-- MovimientoStockBLL
+  ServicioBase <|-- BitacoraBLL
+  ServicioBase ..> RegistroEventos
+  BitacoraBLL ..> RegistroEventos
+  ProductoBLL ..> Validador
+
+  ProductoBLL *-- ProductoDAL
+  CategoriaBLL *-- CategoriaDAL
+  ProveedorBLL *-- ProveedorDAL
+  MovimientoStockBLL *-- MovimientoStockDAL
+  ProductoDAL ..> Db
+  CategoriaDAL ..> Db
+  ProveedorDAL ..> Db
+  MovimientoStockDAL ..> Db
+  Db ..> Conexion
+  Db ..> TraductorErrores

@@ -25,7 +25,7 @@ Cada capa es un **proyecto independiente** dentro de la solución `Sigbim.sln`. 
 | `Sigbim.Entidades` | Biblioteca de clases | — | Clases del dominio (DTO) y excepciones compartidas. No tiene lógica. |
 | `Sigbim.DAL` | Biblioteca de clases | Entidades + paquete `MySqlConnector` | Ejecutar los SPs con parámetros, mapear filas a entidades y traducir errores de MySQL. |
 | `Sigbim.BLL` | Biblioteca de clases | Entidades, DAL | Reglas de negocio, validaciones, usuario de sesión y bitácora. |
-| `Sigbim.UI` | Aplicación de escritorio | Entidades, BLL (**no** DAL) | Ventanas, formularios, validación de formato y mensajes al usuario. |
+| `Sigbim.UI` | Aplicación de escritorio | Entidades, BLL (**no** DAL) + paquetes Avalonia y QuestPDF | Ventanas, formularios, validación de formato, mensajes al usuario y reporte PDF de la bitácora. |
 
 ## 6.2 Decisión de arquitectura: Avalonia UI en lugar de Windows Forms
 
@@ -134,6 +134,7 @@ src/
 │   ├── EntidadAuditable.cs
 │   ├── Categoria.cs, Proveedor.cs, Producto.cs, ProductoDetalle.cs
 │   ├── MovimientoStock.cs   (incluye enum TipoMovimiento)
+│   ├── EventoBitacora.cs    (línea de la bitácora, para consulta y PDF)
 │   └── Excepciones.cs
 ├── Sigbim.DAL/
 │   ├── Conexion.cs          (lee appsettings.json o la variable SIGBIM_CONEXION)
@@ -142,17 +143,34 @@ src/
 │   └── CategoriaDAL.cs, ProveedorDAL.cs, ProductoDAL.cs, MovimientoStockDAL.cs
 ├── Sigbim.BLL/
 │   ├── ServicioBase.cs, Validador.cs, Sesion.cs, RegistroEventos.cs, SistemaBLL.cs
-│   └── CategoriaBLL.cs, ProveedorBLL.cs, ProductoBLL.cs, MovimientoStockBLL.cs
+│   └── CategoriaBLL.cs, ProveedorBLL.cs, ProductoBLL.cs, MovimientoStockBLL.cs, BitacoraBLL.cs
 └── Sigbim.UI/
     ├── Program.cs, App.axaml, App.axaml.cs
     ├── Ui.cs, Dialogo.cs
     ├── appsettings.example.json
+    ├── Reportes/
+    │   └── ReporteBitacoraPdf.cs (PDF de la bitácora con QuestPDF)
     └── Ventanas/
         ├── VentanaPrincipal.cs
-        ├── VentanaMantenedor.cs  (plantilla CRUD genérica)
-        ├── VentanaProductos.cs, VentanaCategorias.cs, VentanaProveedores.cs
-        └── VentanaMovimientos.cs
+        ├── VentanaMantenedor.cs  (plantilla CRUD genérica, con modo solo lectura)
+        ├── VentanaProductos.cs   (consulta o gestión de artículos)
+        ├── VentanaArticulosCategorias.cs
+        ├── VentanaCategorias.cs, VentanaProveedores.cs
+        ├── VentanaMovimientos.cs
+        └── VentanaBitacora.cs
 ```
+
+### Menú principal (versión final)
+
+| Botón | Ventana | Uso |
+|---|---|---|
+| Productos | `VentanaProductos(soloLectura: true)` | Consulta y búsqueda de todos los productos registrados. |
+| Movimientos de stock | `VentanaMovimientos` | Entradas, salidas, ajustes y kardex. |
+| Artículos y categorías | `VentanaArticulosCategorias` | Crear, modificar y desactivar artículos; mantenedor de categorías. |
+| Proveedores | `VentanaProveedores` | Mantenedor de proveedores. |
+| Bitácora y reporte PDF | `VentanaBitacora` | Consulta de la bitácora y descarga en PDF. |
+
+La reorganización del menú solo modificó la capa UI: BLL, DAL y la base de datos quedaron intactas, lo que demuestra el bajo acoplamiento entre capas.
 
 ## 6.6 Escalabilidad
 

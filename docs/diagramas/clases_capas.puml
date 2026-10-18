@@ -12,13 +12,24 @@ package "Sigbim.UI (Presentación - Avalonia)" {
   class VentanaPrincipal
   abstract class "VentanaMantenedor<T>" as VM {
     # Grilla : DataGrid
+    - _soloLectura : bool
     # Actual : T?
     # {abstract} Cargar(buscar, incluirInactivos) : IEnumerable<T>
     # {abstract} Guardar() : int
     # {abstract} Eliminar(registro : T) : void
     # RecargarAsync(seleccionarId : int?) : Task
   }
-  class VentanaProductos
+  class VentanaProductos {
+    + VentanaProductos(soloLectura : bool)
+  }
+  class VentanaArticulosCategorias
+  class VentanaBitacora {
+    - RecargarAsync() : Task
+    - DescargarPdfAsync() : Task
+  }
+  class ReporteBitacoraPdf <<static>> {
+    + {static} Generar(ruta : string, eventos : IReadOnlyList<EventoBitacora>) : void
+  }
   class VentanaCategorias
   class VentanaProveedores
   class VentanaMovimientos {
@@ -75,6 +86,11 @@ package "Sigbim.BLL (Lógica de negocio)" {
   class RegistroEventos <<static>> {
     + {static} Info(operacion, detalle) : void
     + {static} Error(operacion, ex) : void
+    + {static} Leer() : List<EventoBitacora>
+  }
+  class BitacoraBLL {
+    + Listar() : List<EventoBitacora>
+    + RegistrarExportacion(archivo : string, cantidadEventos : int) : void
   }
   class SistemaBLL <<static>> {
     + {static} ProbarConexion() : void
@@ -122,8 +138,14 @@ package "Sigbim.DAL (Acceso a datos)" {
 VM <|-- VentanaProductos
 VM <|-- VentanaCategorias
 VM <|-- VentanaProveedores
-VentanaPrincipal ..> VentanaProductos
+VentanaPrincipal ..> VentanaProductos : consulta
 VentanaPrincipal ..> VentanaMovimientos
+VentanaPrincipal ..> VentanaArticulosCategorias
+VentanaPrincipal ..> VentanaBitacora
+VentanaArticulosCategorias ..> VentanaProductos : gestión
+VentanaArticulosCategorias ..> VentanaCategorias
+VentanaBitacora ..> BitacoraBLL
+VentanaBitacora ..> ReporteBitacoraPdf
 VentanaProductos ..> ProductoBLL
 VentanaCategorias ..> CategoriaBLL
 VentanaProveedores ..> ProveedorBLL
@@ -133,6 +155,8 @@ ServicioBase <|-- ProductoBLL
 ServicioBase <|-- CategoriaBLL
 ServicioBase <|-- ProveedorBLL
 ServicioBase <|-- MovimientoStockBLL
+ServicioBase <|-- BitacoraBLL
+BitacoraBLL ..> RegistroEventos
 ProductoBLL ..> Validador
 ServicioBase ..> RegistroEventos
 

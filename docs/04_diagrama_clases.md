@@ -24,6 +24,7 @@ El diseño se presenta en dos diagramas:
 | `MovimientoStock` → `Producto` | Asociación dirigida | 0..* a 1 | Un producto acumula muchos movimientos (RF-13, RF-14). |
 | `MovimientoStock` → `TipoMovimiento` | Dependencia (enumeración) | 1 | Restringe los tipos a ENTRADA, SALIDA y AJUSTE. |
 | `ValidacionException`, `DatosException` → `SigbimException` | Generalización | — | Permite a la UI distinguir errores de negocio de errores de BD (criterio 7 de la rúbrica). |
+| `EventoBitacora` | Clase independiente (DTO) | — | Representa una línea de la bitácora (fecha, nivel, usuario, operación, detalle) para mostrarla y exportarla (RF-17, RF-18). No se persiste en la BD. |
 
 ### Decisiones de diseño
 - Las asociaciones se implementan con **claves foráneas** (`IdCategoria`, `IdProveedor`, `IdProducto`), igual que en el modelo relacional. Así las clases "conversan" directamente con las tablas.
@@ -34,20 +35,24 @@ El diseño se presenta en dos diagramas:
 
 ![Diagrama de clases - capas](diagramas/clases_capas.png)
 
-> Fuente: [`diagramas/clases_capas.puml`](diagramas/clases_capas.puml)
+> Fuentes: [`diagramas/clases_capas.mmd`](diagramas/clases_capas.mmd) (Mermaid, origen de la imagen) y [`diagramas/clases_capas.puml`](diagramas/clases_capas.puml) (PlantUML).
 
 ### Responsabilidades
 
 | Capa | Clase | Responsabilidad |
 |---|---|---|
 | UI | `VentanaMantenedor<T>` | Plantilla genérica CRUD (patrón *Template Method*): grilla, formulario y botones. Las clases hijas solo implementan `Cargar`, `Guardar`, `Eliminar` y `MostrarEnFormulario`. |
-| UI | `VentanaProductos`, `VentanaCategorias`, `VentanaProveedores` | Mantenedores concretos. |
+| UI | `VentanaProductos`, `VentanaCategorias`, `VentanaProveedores` | Mantenedores concretos. `VentanaProductos` se usa en dos modos: **solo lectura** (menú *Productos*) y **gestión** (desde *Artículos y categorías*), gracias al parámetro `soloLectura` de `VentanaMantenedor<T>`. |
+| UI | `VentanaArticulosCategorias` | Punto único de administración del catálogo: abre la gestión de artículos y el mantenedor de categorías. |
+| UI | `VentanaBitacora` | Muestra la bitácora y descarga el reporte en PDF. |
+| UI | `ReporteBitacoraPdf` | Arma el PDF con QuestPDF (encabezado, resumen y detalle). Se ubica en la UI porque el PDF es un formato de presentación. |
 | UI | `VentanaMovimientos` | Registro de movimientos y kardex. |
 | UI | `Ui` | Validación de formato (números) y manejo centralizado de excepciones (`EjecutarAsync`). |
 | BLL | `ServicioBase` | Ejecuta cada operación registrando el éxito o el error en la bitácora. |
 | BLL | `ProductoBLL`, `CategoriaBLL`, `ProveedorBLL`, `MovimientoStockBLL` | Reglas de negocio y validaciones antes de llamar a la DAL. |
 | BLL | `Validador` | Validaciones reutilizables con interfaz fluida (requerido, largo, email, RUT módulo 11). |
-| BLL | `Sesion`, `RegistroEventos`, `SistemaBLL` | Usuario actual, bitácora (A.8.15) y verificación de conexión. |
+| BLL | `Sesion`, `RegistroEventos`, `SistemaBLL` | Usuario actual, bitácora (A.8.15: escribe y, con `Leer()`, interpreta los archivos de log) y verificación de conexión. |
+| BLL | `BitacoraBLL` | Servicio de consulta de la bitácora y registro de cada exportación a PDF. |
 | DAL | `ProductoDAL`, `CategoriaDAL`, `ProveedorDAL`, `MovimientoStockDAL` | Invocan **solo procedimientos almacenados** y convierten filas en entidades. |
 | DAL | `Db` | Ejecución común: abre la conexión, arma el comando `CALL sp_x(@p…)` y agrega los parámetros. |
 | DAL | `Conexion` | Lee la cadena de conexión desde configuración externa (A.5.17). |
