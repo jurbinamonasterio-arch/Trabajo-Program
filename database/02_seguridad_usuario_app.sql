@@ -11,6 +11,9 @@
 -- IMPORTANTE: cambia la contraseña antes de usarlo y NO la subas a GitHub.
 -- =====================================================================
 
+-- Se elimina también una posible cuenta antigua en 'localhost': si existiera,
+-- MySQL la preferiría sobre la de '%' (es más específica) y rechazaría la clave.
+DROP USER IF EXISTS 'sigbim_app'@'localhost';
 DROP USER IF EXISTS 'sigbim_app'@'%';
 CREATE USER 'sigbim_app'@'%' IDENTIFIED BY 'CambiarEstaClave#2026';
 
